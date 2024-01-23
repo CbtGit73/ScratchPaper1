@@ -65,7 +65,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
           "Effect" : "Allow",
           "Principal" : "*",
           "Action" : "s3:GetObject",
-          "Resource" : "arn:aws:s3:::${aws_s3_bucket.bucket.id}/*"
+          "Resource" : "arn:aws:s3:::${aws_s3_bucket.bucket.arn}/*"
         }
       ]
     }
