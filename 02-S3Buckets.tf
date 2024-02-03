@@ -31,7 +31,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
 
 #4 ACL settings depend on Object Controls and Public Access Controls
 # ACL is private
-resource "aws_s3_bucket_acl" "acl-settings" {
+resource "aws_s3_bucket_acl" "S3ACL" {
   depends_on = [
     aws_s3_bucket_ownership_controls.S3controls,
     aws_s3_bucket_public_access_block.pabs,
@@ -40,6 +40,18 @@ resource "aws_s3_bucket_acl" "acl-settings" {
   bucket = aws_s3_bucket.bucket.id
   acl    = "private"
 }
+
+#bucket objects
+resource "aws_s3_object" "ninjafile" {
+  for_each     = var.objects
+  bucket       = aws_s3_bucket.bucket.id
+  key          = each.key
+  source       = "./Content/${each.key}"
+  content_type = each.value
+  #etag         = filemd5(each.value)
+  acl = "public-read"
+}
+
 /*
 #Policy to make picture show
 resource "aws_s3_bucket_policy" "bucket_policy" {
