@@ -73,6 +73,7 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
 }
 */
 
+/*
 # Variable s# Bucket******
 module "s3" {
 
@@ -87,4 +88,4 @@ resource "aws_s3_bucket" "buckets" {
     bucket = "${var.bucket_name}" 
 
     acl = "${var.acl_value}"
-
+*/
