@@ -1,59 +1,47 @@
-module "s3" {
-
-    source = "</Users/christopher/Cloud_Ninjas_Pics_Gifs/Pics_Gifs>"
-
-    bucket_name = "Pics_Gifs"       
-
+#1 S3 bucket
+resource "aws_s3_bucket" "bucket" {
+  bucket = "psychoticbumpschool"
 }
 
-resource "aws_s3_bucket" "buckets" {
-
-    bucket = "${var.bucket_name}" 
-
-    acl = "${var.acl_value}"
-
-
-#or
-
-
-resource "aws_s3_bucket" "S3-bucket1" {
-  bucket = "CloudNinjaInspirationPics&Gifs"
-
-  tags = {
-    Name        = "CloudNinjaInspirationPics&Gifs"
-    Environment = "Dev"
-  }
-}
-
-
-resource "aws_s3_bucket_ownership_controls" "object-ownership" {
-  bucket = aws_s3_bucket.CloudNinjaInspirationPics&Gifs.id
+#2 Object ownership controls are owner enforced
+resource "aws_s3_bucket_ownership_controls" "S3controls" {
+  bucket = aws_s3_bucket.bucket.id
   rule {
-    object_ownership = "BucketOwnerPreferred"
+    object_ownership = "BucketOwnerEnforced"
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "public-access-settings" {
-  bucket = aws_s3_bucket.CloudNinjaInspirationPics&Gifs.id
+#3 public access is blocked on all fronts
+resource "aws_s3_bucket_public_access_block" "pabs" {
+  bucket = aws_s3_bucket.bucket.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
+# Bucket Versioning is disabled
+resource "aws_s3_bucket_versioning" "versioning" {
+  bucket = aws_s3_bucket.bucket.id
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+#4 ACL settings depend on Object Controls and Public Access Controls
+# ACL is private
 resource "aws_s3_bucket_acl" "acl-settings" {
   depends_on = [
-    aws_s3_bucket_ownership_controls.CloudNinjaInspirationPics&Gifs,
-    aws_s3_bucket_public_access_block.CloudNinjaInspirationPics&Gifs,
+    aws_s3_bucket_ownership_controls.S3controls,
+    aws_s3_bucket_public_access_block.pabs,
   ]
 
-  bucket = aws_s3_bucket.CloudNinjaInspirationPics&Gifs.id
-  acl    = "public-read"
+  bucket = aws_s3_bucket.bucket.id
+  acl    = "private"
 }
-
+/*
 #Policy to make picture show
-
 resource "aws_s3_bucket_policy" "bucket_policy" {
   bucket = aws_s3_bucket.bucket.id
   policy = jsonencode(
@@ -71,3 +59,20 @@ resource "aws_s3_bucket_policy" "bucket_policy" {
     }
   )
 }
+*/
+
+# Variable s# Bucket******
+module "s3" {
+
+    source = "</Users/christopher/Cloud_Ninjas_Pics_Gifs/Pics_Gifs>"
+
+    bucket_name = "Pics_Gifs"       
+
+}
+
+resource "aws_s3_bucket" "buckets" {
+
+    bucket = "${var.bucket_name}" 
+
+    acl = "${var.acl_value}"
+
