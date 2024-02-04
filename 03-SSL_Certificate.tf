@@ -16,12 +16,14 @@ resource "aws_acm_certificate" "acm_domain" {
   }
 }
 
+/*
 data "aws_route53_zone" "selected" {
   name         = "test.com."
 private_zone = false
 }
+*/
 
-#Validate SSL Certificate
+#3 Validate SSL Certificate
 resource "aws_route53_record" "validation" {
   zone_id = "${aws_route53_zone.public_zone.zone_id}"
   name = "${aws_acm_certificate.default.domain_validation_options.0.resource_record_name}"
