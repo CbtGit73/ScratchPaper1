@@ -59,7 +59,6 @@ resource "aws_s3_object" "ninjafile" {
   acl = "private"
 }
 
-/*
 # 6 Policy from CloudFront Data block
 data "aws_iam_policy_document" "s3_policy_data" {
   statement {
