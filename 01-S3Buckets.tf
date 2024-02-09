@@ -1,9 +1,16 @@
-#1 S3 bucket
-resource "aws_s3_bucket" "bucket" {
-  bucket = "psychoticbumpschool"
+#1 generates random alphanumeric values thst can be added to expressions/names to maintain uniqueness/limit redundancy
+resource "random_string" "random" { 
+    length = 6
+    special = false 
+    upper = false 
 }
 
-#2 Object ownership controls are owner enforced
+#2 S3 bucket
+resource "aws_s3_bucket" "bucket" {
+  bucket = "psychoticbumpschool${random_string.random.result}"
+}
+
+#3 Object ownership controls are owner enforced
 resource "aws_s3_bucket_ownership_controls" "S3controls" {
   bucket = aws_s3_bucket.bucket.id
   rule {
@@ -11,7 +18,7 @@ resource "aws_s3_bucket_ownership_controls" "S3controls" {
   }
 }
 
-#3 public access is blocked on all fronts
+#4 public access is blocked on all fronts
 resource "aws_s3_bucket_public_access_block" "pabs" {
   bucket = aws_s3_bucket.bucket.id
 
@@ -29,7 +36,7 @@ resource "aws_s3_bucket_versioning" "versioning" {
   }
 }
 
-#4 ACL settings depend on Object Controls and Public Access Controls
+#5 ACL settings depend on Object Controls and Public Access Controls
 # ACL is private
 resource "aws_s3_bucket_acl" "S3ACL" {
   depends_on = [
@@ -49,26 +56,30 @@ resource "aws_s3_object" "ninjafile" {
   source       = "./Content/${each.key}"
   content_type = each.value
   #etag         = filemd5(each.value)
-  acl = "public-read"
+  acl = "private"
 }
 
 /*
-#Policy to make picture show
-resource "aws_s3_bucket_policy" "bucket_policy" {
-  bucket = aws_s3_bucket.bucket.id
-  policy = jsonencode(
-    {
-      "Version" : "2012-10-17",
-      "Statement" : [
-        {
-          "Sid" : "PublicReadGetObject",
-          "Effect" : "Allow",
-          "Principal" : "*",
-          "Action" : "s3:GetObject",
-          "Resource" : "arn:aws:s3:::${aws_s3_bucket.bucket.arn}/*"
-        }
-      ]
+# 6 Policy from CloudFront Data block
+data "aws_iam_policy_document" "s3_policy_data" {
+  statement {
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.bucket.arn}/*"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
     }
-  )
+    condition {
+        test     = "StringEquals"
+        variable = "aws:SourceArn"
+        values   = ["${aws_cloudfront_distribution.s3_distribution.arn}"]
+    }
+  }
 }
-*/
+
+# 7 Policy from CloudFront Resource block
+resource "aws_s3_bucket_policy" "s3_policy" {
+  bucket = aws_s3_bucket.bucket.id
+  policy = data.aws_iam_policy_document.s3_policy_data.json
+}
