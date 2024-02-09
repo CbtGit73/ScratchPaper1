@@ -48,7 +48,7 @@ resource "aws_s3_bucket_acl" "S3ACL" {
   acl    = "private"
 }
 
-#bucket objects
+# 6 bucket objects
 resource "aws_s3_object" "ninjafile" {
   for_each     = var.objects
   bucket       = aws_s3_bucket.bucket.id
@@ -59,7 +59,16 @@ resource "aws_s3_object" "ninjafile" {
   acl = "private"
 }
 
-# 6 Policy from CloudFront Data block
+# 7 Encryption type
+resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_encryption" {
+  bucket = aws_s3_bucket.bucket.id
+
+  rule {
+    bucket_key_enabled = true
+  }
+}
+
+# 8 Policy from CloudFront Data block
 data "aws_iam_policy_document" "s3_policy_data" {
   statement {
     actions   = ["s3:GetObject"]
@@ -77,7 +86,7 @@ data "aws_iam_policy_document" "s3_policy_data" {
   }
 }
 
-# 7 Policy from CloudFront Resource block
+# 9 Policy from CloudFront Resource block
 resource "aws_s3_bucket_policy" "s3_policy" {
   bucket = aws_s3_bucket.bucket.id
   policy = data.aws_iam_policy_document.s3_policy_data.json
