@@ -55,7 +55,7 @@ resource "aws_s3_object" "ninjafile" {
   key          = each.key
   source       = "./Content/${each.key}"
   content_type = each.value
-  #etag         = filemd5(each.value)
+  etag         = filemd5(each.value)
   acl = "private"
 }
 
