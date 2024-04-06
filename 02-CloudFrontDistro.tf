@@ -65,3 +65,6 @@ resource "aws_cloudfront_distribution" "s3_distribution" {
         minimum_protocol_version = "TLSv1.2_2021"
     }
 }
+
+
+aws ec2 run-instances --image-id ami-0900fe555666598a2 --count 1 --instance-type t2.micro --iam-instance-profile Name=document-access-instance-profile --key-name us-east-2-key2.pem
