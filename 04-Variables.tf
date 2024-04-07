@@ -38,6 +38,24 @@ aws ec2 authorize-security-group-ingress --group-id sg-09e23467075b71bc6 --proto
 
 aws ec2 authorize-security-group-ingress --group-id sg-09e23467075b71bc6 --protocol tcp --port 80 --cidr 0.0.0.0/0 --output text
 
+aws ec2 run-instances --image-id ami-0900fe555666598a2 --count 1 --instance-type t2.micro --key-name us-east-2-key2 --security-group-ids sg-09e23467075b71bc6  --subnet-id subnet-0478960f44954c740 --associate-public-ip-address --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=instance-public-a}]' --user-data file://user-data-script.sh
+
+#Obtain Public DNS
+aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicDnsName" 
+http://ec2-3-22-77-79.us-east-2.compute.amazonaws.com
+ 
+Troubleshooting
+#Next ssh into the instance
+ssh -i "secure.pem" ec2-34-241-207-140.eu-west-1.compute.amazonaws.com
+# Generate Locale (Optional):
+sudo localedef -i en_US -f UTF-8 en_US.UTF-8
+Sudo Commands
+sudo yum update -y
+sudo yum install -y httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+sudo systemctl status httpd
+
 #!/bin/bash
 yum update -y
 yum install -y httpd
