@@ -35,3 +35,67 @@ resource "google_storage_object_acl" "image_acl" {
 output "website_url" {
   value = "https://storage.googleapis.com/${google_storage_bucket.bucket.name}/index.html"
 }
+
+
+# Kustomiztion overlay
+- ../../base
+
+patches:
+  - target:
+      kind: Deployment
+      name: web
+    patch: |-
+      - op: replace
+        path: /spec/replicas
+        value: 5
+
+nameSuffix: -prod
+
+commonLabels:
+  owner: christo
+
+# Kustomization base
+resources:
+  - web-depl.yaml
+  - web-svc.yaml
+
+# web deploy
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: web
+  name: web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+      - image: nginx
+        name: nginx
+        ports:
+        - containerPort: 80
+
+# Web-svc
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: web
+  name: web
+spec:
+  ports:
+  - port: 80
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: web
+status:
+  loadBalancer: {}
