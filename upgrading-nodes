@@ -1,0 +1,35 @@
+1. echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.34/deb/ /" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+
+2. curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.34/deb/Release.key | sudo gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+3. sudo apt update
+
+4. sudo apt-cache madison kubeadm
+
+4. sudo apt-mark unhold kubeadm && \
+sudo apt-get update && sudo apt-get install -y kubeadm='1.34.x-*' && \
+sudo apt-mark hold kubeadm
+
+5. kubeadm version
+
+6. sudo kubeadm upgrade plan
+
+7. sudo kubeadm upgrade apply v1.34.x
+
+8. kubectl drain <node-to-drain> --ignore-daemonsets #Drain the node
+
+9. sudo apt-mark unhold kubelet kubectl && \
+sudo apt-get update && sudo apt-get install -y kubelet='1.34.x-*' kubectl='1.34.x-*' && \
+sudo apt-mark hold kubelet kubectl # Upgrade kubelet and kubectl
+
+10. sudo systemctl daemon-reload # Restart the kubelet
+11. sudo systemctl restart kubelet # Restart the kubelet
+
+12. kubectl uncordon <node-to-uncordon> # Uncordon the node
+
+https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/kubeadm-upgrade/
+
+https://kubernetes.io/blog/2023/08/15/pkgs-k8s-io-introduction/
+
+https://kubernetes.io/docs/tasks/administer-cluster/kubeadm/upgrading-linux-nodes/
+
